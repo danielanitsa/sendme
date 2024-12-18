@@ -1,7 +1,7 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:chatapp/screens/chatlist_screen.dart';
-import 'package:chatapp/utils/globals.dart';
+import 'package:chatapp/utils/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -33,18 +33,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
       try {
         // Create a new user
-        final user = await account.create(
-          userId: ID.unique(),
-          email: email,
-          password: password,
-          name: fullname,
-        );
-
-        // Authenticate the user
-        final session = await account.createEmailPasswordSession(
-          email: email,
-          password: password,
-        );
+        final session = AuthController.to.signUp(email, password, fullname);
 
         if (!mounted) return;
 
@@ -52,14 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
           const SnackBar(content: Text('Account created and logged in!')),
         );
 
-        if (session.current) {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const Chatlistscreen()));
-        }
-
-        print('FullName: ${user.name}');
-        print('Email: ${user.email}');
-        print('Session ID: ${session.$id}'); // Example of session data
+        print(session);
       } catch (e) {
         String errorMessage = 'An error occurred. Please try again.';
         if (e is AppwriteException && e.message != null) {
@@ -116,7 +98,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     decoration: InputDecoration(
                       labelText: "Fullname",
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: const UnderlineInputBorder(),
                     ),
                     keyboardType: TextInputType.emailAddress,
@@ -133,7 +116,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     decoration: InputDecoration(
                       labelText: "Email",
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: const UnderlineInputBorder(),
                     ),
                     keyboardType: TextInputType.emailAddress,
@@ -153,10 +137,11 @@ class _SignupScreenState extends State<SignupScreen> {
                     decoration: InputDecoration(
                       labelText: "Password",
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: const UnderlineInputBorder(),
                     ),
-                    obscureText: true,
+                    obscureText: false,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';

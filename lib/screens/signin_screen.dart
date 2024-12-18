@@ -1,4 +1,5 @@
 import 'package:chatapp/screens/signup_screen.dart';
+import 'package:chatapp/utils/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -20,16 +21,24 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final email = _emailController.text;
-      final password = _passwordController.text;
+      try {
+        final email = _emailController.text;
+        final password = _passwordController.text;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Form Submitted Successfully!')),
-      );
-      print('Email: $email');
-      print('Password: $password');
+        await AuthController.to.login(email, password);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Form Submitted Successfully!')),
+        );
+        print('Email: $email');
+        print('Password: $password');
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit form: $e')),
+        );
+      }
     }
   }
 
@@ -65,7 +74,8 @@ class _SignInScreenState extends State<SignInScreen> {
                     decoration: InputDecoration(
                       labelText: "Email",
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: const UnderlineInputBorder(),
                     ),
                     keyboardType: TextInputType.emailAddress,
@@ -85,7 +95,8 @@ class _SignInScreenState extends State<SignInScreen> {
                     decoration: InputDecoration(
                       labelText: "Password",
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: const UnderlineInputBorder(),
                     ),
                     obscureText: true,

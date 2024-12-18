@@ -1,61 +1,23 @@
-import 'package:appwrite/models.dart';
-import 'package:chatapp/screens/chatlist_screen.dart';
+import 'package:chatapp/utils/auth_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:chatapp/screens/signin_screen.dart';
-import 'package:chatapp/utils/globals.dart' as globals;
+import 'package:get/get.dart';
 
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+class SplashScreen extends StatelessWidget {
+  SplashScreen({super.key});
 
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _redirect();
-  }
-
-  Future<void> _redirect() async {
-    await Future.delayed(Duration.zero);
-
-    try {
-      final User isAuthenticated = await globals.account.get();
-      if (!mounted) return;
-
-      if (isAuthenticated != null) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const Chatlistscreen()),
-        );
-      } else {
-        Navigator.of(context).pushAndRemoveUntil(
-          SignInScreen.route(),
-          (route) => false,
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        SignInScreen.route(),
-        (route) => false,
-      );
-    }
-  }
+  final AuthController authController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
+    // Trigger a delay to simulate a loading state
+    Future.delayed(const Duration(seconds: 2), () {
+      // Check and fire the initial route
+      authController.fireRoute(authController.currentUser.value != null);
+    });
+
     return const Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 20),
-            Text('Loading...'),
-          ],
-        ),
+        child: CircularProgressIndicator(), // Spinner widget
       ),
     );
   }

@@ -1,16 +1,23 @@
+import 'package:appwrite/appwrite.dart';
 import 'package:chatapp/screens/splash_screen.dart';
 import 'package:chatapp/util.dart';
+import 'package:chatapp/utils/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'theme.dart';
-import 'package:chatapp/utils/globals.dart' as globals;
 
 Future<void> main() async {
-  // Ensure Flutter binding is initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  // Initialize any global clients or services
-  globals.client;
+  // Initialize Appwrite Client
+  Client client = Client()
+      .setEndpoint('https://cloud.appwrite.io/v1')
+      .setProject('67506d50000ed831ccff');
+
+  // Initialize AuthController
+  final authController = Get.put(AuthController());
+  authController.initAccount(client);
 
   runApp(const MyApp());
 }
@@ -28,13 +35,13 @@ class MyApp extends StatelessWidget {
     TextTheme textTheme = createTextTheme(context, "Roboto Flex", "Poppins");
 
     MaterialTheme theme = MaterialTheme(textTheme);
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: theme.light(),
       darkTheme: theme.dark(),
       themeMode: ThemeMode.light,
-      home: const SplashScreen(),
+      home: SplashScreen(),
     );
   }
 }

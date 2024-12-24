@@ -1,7 +1,9 @@
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/enums.dart';
 import 'package:appwrite/models.dart';
 import 'package:chatapp/screens/chatlist_screen.dart';
 import 'package:chatapp/screens/signin_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
@@ -27,56 +29,55 @@ class AuthController extends GetxController {
   // Check if user is logged in and update the state
   Future<void> checkAuth() async {
     try {
-      final user = await account.get(); // Try to get the current user
+      final user = await account.get();
+      print(
+          "User fetched successfully: ${user.name}"); // Try to get the current user
       currentUser.value = user; // Set the current user
     } catch (e) {
       currentUser.value = null; // If there's an error, set currentUser to null
-      _handleError(e, 'Failed to check authentication');
     }
   }
 
   // Login method
-  Future<void> login(String email, String password) async {
+  Future<void> login(
+      BuildContext context, String email, String password) async {
     try {
       await account.createEmailPasswordSession(
           email: email, password: password); // Create session for the user
       await checkAuth(); // Update current user after login
-      Get.snackbar('Success', 'Login successful',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Get.theme.primaryColorLight);
+      _showSnackBar(context, 'Success', 'Login successful', Colors.green);
     } catch (e) {
-      _handleError(e, 'Login failed');
+      _handleError(context, e, 'Login failed');
     }
   }
 
   // Sign-up method
-  Future<void> signUp(String email, String password, String fullname) async {
+  Future<void> signUp(BuildContext context, String email, String password,
+      String fullname) async {
     try {
       await account.create(
           userId: ID.unique(),
           email: email,
           password: password,
           name: fullname); // Create the user in Appwrite
-      await login(email, password); // Automatically log in after sign-up
-      Get.snackbar('Success', 'Account created successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Get.theme.primaryColorLight);
+      await login(
+          context, email, password); // Automatically log in after sign-up
+      _showSnackBar(
+          context, 'Success', 'Account created successfully', Colors.green);
     } catch (e) {
-      _handleError(e, 'Sign-up failed');
+      _handleError(context, e, 'Sign-up failed');
     }
   }
 
   // Logout method
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
     try {
       await account.deleteSession(
           sessionId: 'current'); // Delete the current session
       currentUser.value = null; // Clear the current user
-      Get.snackbar('Success', 'Logout successful',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Get.theme.primaryColorLight);
+      _showSnackBar(context, 'Success', 'Logout successful', Colors.green);
     } catch (e) {
-      _handleError(e, 'Logout failed');
+      _handleError(context, e, 'Logout failed');
     }
   }
 
@@ -90,18 +91,45 @@ class AuthController extends GetxController {
   }
 
   // Error handling helper method
-  void _handleError(dynamic error, String defaultMessage) {
+  void _handleError(
+      BuildContext context, dynamic error, String defaultMessage) {
     String errorMessage = defaultMessage;
 
     // Handle specific Appwrite errors
-    if (error is AppwriteException && error.message != null) {
-      errorMessage = error.message!;
+    if (error is AppwriteException) {
+      // Use a fallback if error.message is null
+      errorMessage = error.message ?? defaultMessage;
     }
 
-    // Display the error to the user using a GetX snackbar
-    Get.snackbar('Error', errorMessage,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Get.theme.colorScheme.error,
-        colorText: Get.theme.colorScheme.onError);
+    _showSnackBar(context, 'Error', errorMessage, Colors.red);
+  }
+
+  // Standard Flutter SnackBar display
+  void _showSnackBar(
+      BuildContext context, String title, String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$title: $message',
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: color,
+      ),
+    );
+  }
+
+  Future<void> signInWithProvider(BuildContext context,
+      {required OAuthProvider provider}) async {
+    try {
+      final response = await account.createOAuth2Session(
+          provider: provider, scopes: ['email', 'profile']);
+
+      print(response); // Sign in with the selected provider
+      await checkAuth(); // Update current user after login
+      _showSnackBar(context, 'Success', 'Login successful', Colors.green);
+    } on AppwriteException catch (e) {
+      _handleError(
+          context, e.message.toString(), "Failed to sign in with provider");
+    }
   }
 }

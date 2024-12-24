@@ -1,9 +1,7 @@
-import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart';
-import 'package:chatapp/screens/chatlist_screen.dart';
 import 'package:chatapp/utils/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -18,6 +16,14 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  dynamic _isButtonDisabled;
+
+  @override
+  void initState() {
+    super.initState();
+    _isButtonDisabled = false;
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -31,28 +37,17 @@ class _SignupScreenState extends State<SignupScreen> {
       final password = _passwordController.text.trim();
       final fullname = _fullnameController.text.trim();
 
+      setState(() {
+        _isButtonDisabled = true; // Disable the button
+      });
+
       try {
-        // Create a new user
-        final session = AuthController.to.signUp(email, password, fullname);
-
-        if (!mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account created and logged in!')),
-        );
-
-        print(session);
+        await AuthController.to.signUp(context, email, password, fullname);
       } catch (e) {
-        String errorMessage = 'An error occurred. Please try again.';
-        if (e is AppwriteException && e.message != null) {
-          errorMessage = e.message!;
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
-
-        print('Error: ${e.toString()}');
+      } finally {
+        setState(() {
+          _isButtonDisabled = false;
+        });
       }
     }
   }
@@ -141,7 +136,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: const UnderlineInputBorder(),
                     ),
-                    obscureText: false,
+                    obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
@@ -154,7 +149,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 20),
                   FilledButton(
-                    onPressed: _submitForm,
+                    onPressed: _isButtonDisabled ? null : _submitForm,
                     style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(
                         Theme.of(context).colorScheme.primary,

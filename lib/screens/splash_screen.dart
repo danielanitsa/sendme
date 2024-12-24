@@ -10,8 +10,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Trigger a delay to simulate a loading state
-    Future.delayed(const Duration(seconds: 2), () {
-      // Check and fire the initial route
+    authController.checkAuth().then((_) {
       authController.fireRoute(authController.currentUser.value != null);
     });
 

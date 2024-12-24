@@ -13,7 +13,7 @@ class Chatlistscreen extends StatelessWidget {
         children: [
           const Text("List of Chats"),
           FilledButton(
-              onPressed: () => AuthController.to.logout(),
+              onPressed: () => AuthController.to.logout(context),
               child: const Text("Sign out!"))
         ],
       ),

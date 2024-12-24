@@ -3,13 +3,11 @@ import 'package:chatapp/screens/splash_screen.dart';
 import 'package:chatapp/util.dart';
 import 'package:chatapp/utils/auth_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
   // Initialize Appwrite Client
   Client client = Client()
       .setEndpoint('https://cloud.appwrite.io/v1')

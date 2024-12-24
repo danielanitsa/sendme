@@ -1,3 +1,4 @@
+import 'package:appwrite/enums.dart';
 import 'package:chatapp/screens/signup_screen.dart';
 import 'package:chatapp/utils/auth_controller.dart';
 import 'package:flutter/material.dart';
@@ -21,23 +22,33 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  dynamic _isButtonDisabled;
+
+  @override
+  void initState() {
+    super.initState();
+    _isButtonDisabled = false;
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      final email = _emailController.text;
+      final password = _passwordController.text;
+
+      setState(() {
+        _isButtonDisabled = true; // Disable the button
+      });
+
       try {
-        final email = _emailController.text;
-        final password = _passwordController.text;
-
-        await AuthController.to.login(email, password);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Form Submitted Successfully!')),
-        );
+        await AuthController.to.login(context, email, password);
         print('Email: $email');
         print('Password: $password');
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit form: $e')),
-        );
+        print('Failed to submit form: $e');
+      } finally {
+        setState(() {
+          _isButtonDisabled = false; // Re-enable the button in all cases
+        });
       }
     }
   }
@@ -112,7 +123,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                   const SizedBox(height: 20),
                   FilledButton(
-                    onPressed: _submitForm,
+                    onPressed: _isButtonDisabled ? null : _submitForm,
                     style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(
                         Theme.of(context).colorScheme.primary,
@@ -151,7 +162,9 @@ class _SignInScreenState extends State<SignInScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton.filledTonal(
-                          onPressed: () {},
+                          onPressed: () => AuthController.to.signInWithProvider(
+                              context,
+                              provider: OAuthProvider.google),
                           icon: const FaIcon(FontAwesomeIcons.google)),
                       const SizedBox(width: 10),
                       IconButton.filledTonal(

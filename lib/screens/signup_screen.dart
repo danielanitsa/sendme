@@ -43,7 +43,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
       try {
         await AuthController.to.signUp(context, email, password, fullname);
-      } catch (e) {
       } finally {
         setState(() {
           _isButtonDisabled = false;
@@ -177,7 +176,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           Size(double.infinity, 50)), // Directly sets height
                     ),
                     child: const Text(
-                      'Create account',
+                      'Sign in',
                     ),
                   ),
                   const SizedBox(height: 15),

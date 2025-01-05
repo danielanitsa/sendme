@@ -1,0 +1,19 @@
+For 12/30/2024
+
+DO NOT FREAK OUT, I JUST DECOMPOSED THE TODOS INTO SIMPLER TODOS!
+
+If done, anottate next to the todo (Done)
+
+1) Create a user collection in appwrite so that you can progress further [done]
+2) Once the user signs up, store the information in the user document [done]
+3) Right after the user has signed up successfully, prompt him to select an avatar, unless he/she already exists in the db
+4) Once the user has selected an avatar, upload it to the file bucket
+5) Once the avatar uploads, store it to the user collection, unless the user already exists
+6) Create the user search functionality (user the appwrite queries for this one)
+7) Create the UI for each feature you have to create later on (Do not moan like a bitch and do it!)
+
+
+For 12/31/2024
+1) Make sure you protect your database fromm any duplicate users
+2) Do the above
+3) Store the user information in the collection (OAuth Google)
